@@ -1,5 +1,18 @@
 package ui;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import core.models.requests.AuthRequest;
+import core.models.responses.BaseResponse;
+import helpers.HttpHelper;
+import java.awt.TrayIcon;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -29,46 +42,35 @@ public class FormLoginRegister extends javax.swing.JFrame {
     private void initComponents() {
 
         jLabel1 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
+        emailField = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
-        jPasswordField1 = new javax.swing.JPasswordField();
-        bLogin = new java.awt.Button();
-        bLogin1 = new java.awt.Button();
+        passwordField = new javax.swing.JPasswordField();
+        btnLogin = new java.awt.Button();
         label1 = new java.awt.Label();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jLabel1.setText("Username");
+        jLabel1.setText("Email");
 
-        jTextField1.setToolTipText("Masukan Username");
+        emailField.setToolTipText("Masukan Username");
 
         jLabel2.setText("Password");
 
-        jPasswordField1.addActionListener(new java.awt.event.ActionListener() {
+        passwordField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jPasswordField1ActionPerformed(evt);
+                passwordFieldActionPerformed(evt);
             }
         });
 
-        bLogin.setActionCommand("Login");
-        bLogin.setFont(new java.awt.Font("Montserrat Medium", 1, 12)); // NOI18N
-        bLogin.setLabel("Register");
-        bLogin.setName(""); // NOI18N
-        bLogin.addActionListener(new java.awt.event.ActionListener() {
+        btnLogin.setActionCommand("Login");
+        btnLogin.setBackground(new java.awt.Color(102, 153, 255));
+        btnLogin.setFont(new java.awt.Font("Montserrat Medium", 1, 12)); // NOI18N
+        btnLogin.setForeground(new java.awt.Color(255, 255, 255));
+        btnLogin.setLabel("Login");
+        btnLogin.setName(""); // NOI18N
+        btnLogin.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                bLoginActionPerformed(evt);
-            }
-        });
-
-        bLogin1.setActionCommand("Login");
-        bLogin1.setBackground(new java.awt.Color(102, 153, 255));
-        bLogin1.setFont(new java.awt.Font("Montserrat Medium", 1, 12)); // NOI18N
-        bLogin1.setForeground(new java.awt.Color(255, 255, 255));
-        bLogin1.setLabel("Login");
-        bLogin1.setName(""); // NOI18N
-        bLogin1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                bLogin1ActionPerformed(evt);
+                btnLoginActionPerformed(evt);
             }
         });
 
@@ -85,10 +87,9 @@ public class FormLoginRegister extends javax.swing.JFrame {
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                         .addComponent(jLabel2)
                         .addComponent(jLabel1)
-                        .addComponent(jTextField1)
-                        .addComponent(jPasswordField1, javax.swing.GroupLayout.DEFAULT_SIZE, 660, Short.MAX_VALUE)
-                        .addComponent(bLogin, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(bLogin1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addComponent(emailField)
+                        .addComponent(passwordField, javax.swing.GroupLayout.DEFAULT_SIZE, 660, Short.MAX_VALUE)
+                        .addComponent(btnLogin, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap(82, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -99,36 +100,54 @@ public class FormLoginRegister extends javax.swing.JFrame {
                 .addGap(32, 32, 32)
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(emailField, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(54, 54, 54)
-                .addComponent(bLogin1, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(bLogin, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(56, Short.MAX_VALUE))
+                .addComponent(btnLogin, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(98, Short.MAX_VALUE))
         );
-
-        bLogin.getAccessibleContext().setAccessibleName("Login");
-        bLogin.getAccessibleContext().setAccessibleDescription("");
 
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jPasswordField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jPasswordField1ActionPerformed
+    private void passwordFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_passwordFieldActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jPasswordField1ActionPerformed
+    }//GEN-LAST:event_passwordFieldActionPerformed
 
-    private void bLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bLoginActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_bLoginActionPerformed
-
-    private void bLogin1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bLogin1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_bLogin1ActionPerformed
+    private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
+        String buttonLabel = btnLogin.getLabel();
+        btnLogin.setEnabled(false);
+        btnLogin.setLabel("Loading...");
+        
+        ObjectMapper mapper = new ObjectMapper()
+                .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
+                .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+        AuthRequest request = new AuthRequest(emailField.getText(), passwordField.getText());
+        
+        try {
+            String body = mapper.writeValueAsString(request);
+            String response = HttpHelper.post("users/auth", body);
+            BaseResponse br = mapper.readValue(response, BaseResponse.class);
+            
+            if (br.getCode().equals("0000")) {
+                JOptionPane.showMessageDialog(null, br.getMessage());
+            } else {
+                JOptionPane.showMessageDialog(null, br.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(FormLoginRegister.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(FormLoginRegister.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            btnLogin.setEnabled(true);
+            btnLogin.setLabel(buttonLabel);
+        }
+        
+    }//GEN-LAST:event_btnLoginActionPerformed
 
     /**
      * @param args the command line arguments
@@ -166,12 +185,11 @@ public class FormLoginRegister extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private java.awt.Button bLogin;
-    private java.awt.Button bLogin1;
+    private java.awt.Button btnLogin;
+    private javax.swing.JTextField emailField;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JPasswordField jPasswordField1;
-    private javax.swing.JTextField jTextField1;
     private java.awt.Label label1;
+    private javax.swing.JPasswordField passwordField;
     // End of variables declaration//GEN-END:variables
 }

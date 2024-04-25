@@ -14,7 +14,7 @@ import java.util.Map;
  */
 public class HttpHelper {
     private static final HttpClient httpClient = HttpClient.newHttpClient();
-    private static final String baseUrl = "https://8fc0-103-157-48-76.ngrok-free.app/api/v1/";
+    private static final String baseUrl = "https://stage.cassier-app.online/api/v1/";
 
     public static String get(String url) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()

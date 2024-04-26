@@ -2,6 +2,14 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group/>
+        <group>
+            <file>file:/C:/Users/USER/Documents/Doc/java/tubes-oop/src/core/models/responses/BaseResponse.java</file>
+            <file>file:/C:/Users/USER/Documents/Doc/java/tubes-oop/src/core/models/requests/AuthRequest.java</file>
+            <file>file:/C:/Users/USER/Documents/Doc/java/tubes-oop/src/helpers/HttpHelper.java</file>
+            <file>file:/C:/Users/USER/Documents/Doc/java/tubes-oop/src/helpers/JdbcHelper.java</file>
+            <file>file:/C:/Users/USER/Documents/Doc/java/tubes-oop/src/tubes/Tubes.java</file>
+            <file>file:/C:/Users/USER/Documents/Doc/java/tubes-oop/src/core/models/responses/AuthResponse.java</file>
+            <file>file:/C:/Users/USER/Documents/Doc/java/tubes-oop/src/ui/FormLoginRegister.java</file>
+        </group>
     </open-files>
 </project-private>

@@ -140,6 +140,9 @@ public class FormLoginRegister extends javax.swing.JFrame {
             int affected = JdbcHelper.insertToken(1, br.getData().getToken());
             if (br.getCode().equals("0000") && affected > 0) {
                 JOptionPane.showMessageDialog(null, br.getMessage());
+                MainMenu mm = new MainMenu();
+                mm.setVisible(true);
+                super.setVisible(false);
             } else {
                 JOptionPane.showMessageDialog(null, "Login Failed", "Error", JOptionPane.ERROR_MESSAGE);
             }

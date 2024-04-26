@@ -131,13 +131,15 @@ public class FormLoginRegister extends javax.swing.JFrame {
         try {
             String body = mapper.writeValueAsString(request);
             String response = HttpHelper.post("users/auth", body);
-            BaseResponse br = mapper.readValue(response, BaseResponse.class);
             
-            if (br.getCode().equals("0000")) {
-                JOptionPane.showMessageDialog(null, br.getMessage());
-            } else {
-                JOptionPane.showMessageDialog(null, br.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            }
+//            System.out.println(response +" :TEST:");
+//            BaseResponse br = mapper.readValue(response, BaseResponse.class);
+//    
+//            if (br.getCode().equals("0000")) {
+//                JOptionPane.showMessageDialog(null, br.getMessage());
+//            } else {
+//                JOptionPane.showMessageDialog(null, br.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+//            }
         } catch (IOException ex) {
             Logger.getLogger(FormLoginRegister.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
@@ -145,6 +147,10 @@ public class FormLoginRegister extends javax.swing.JFrame {
         } finally {
             btnLogin.setEnabled(true);
             btnLogin.setLabel(buttonLabel);
+            MainMenu mm  = new MainMenu();
+            mm.setVisible(true);
+            super.setVisible(false);
+        
         }
         
     }//GEN-LAST:event_btnLoginActionPerformed

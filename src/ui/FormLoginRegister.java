@@ -2,13 +2,17 @@ package ui;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import core.models.requests.AuthRequest;
+import core.models.responses.AuthResponse;
 import core.models.responses.BaseResponse;
 import helpers.HttpHelper;
+import helpers.JdbcHelper;
 import java.awt.TrayIcon;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -131,16 +135,15 @@ public class FormLoginRegister extends javax.swing.JFrame {
         try {
             String body = mapper.writeValueAsString(request);
             String response = HttpHelper.post("users/auth", body);
-            BaseResponse br = mapper.readValue(response, BaseResponse.class);
+            BaseResponse<AuthResponse> br = mapper.readValue(response, new TypeReference<BaseResponse<AuthResponse>>(){});
             
-            if (br.getCode().equals("0000")) {
+            int affected = JdbcHelper.insertToken(1, br.getData().getToken());
+            if (br.getCode().equals("0000") && affected > 0) {
                 JOptionPane.showMessageDialog(null, br.getMessage());
             } else {
-                JOptionPane.showMessageDialog(null, br.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Login Failed", "Error", JOptionPane.ERROR_MESSAGE);
             }
-        } catch (IOException ex) {
-            Logger.getLogger(FormLoginRegister.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
+        } catch (IOException | InterruptedException ex) {
             Logger.getLogger(FormLoginRegister.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             btnLogin.setEnabled(true);

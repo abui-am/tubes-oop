@@ -6,6 +6,9 @@
             <file>file:/C:/Users/USER/Documents/Doc/java/tubes-oop/src/core/models/responses/BaseResponse.java</file>
             <file>file:/C:/Users/USER/Documents/Doc/java/tubes-oop/src/core/models/requests/AuthRequest.java</file>
             <file>file:/C:/Users/USER/Documents/Doc/java/tubes-oop/src/helpers/HttpHelper.java</file>
+            <file>file:/C:/Users/USER/Documents/Doc/java/tubes-oop/src/helpers/JdbcHelper.java</file>
+            <file>file:/C:/Users/USER/Documents/Doc/java/tubes-oop/src/tubes/Tubes.java</file>
+            <file>file:/C:/Users/USER/Documents/Doc/java/tubes-oop/src/core/models/responses/AuthResponse.java</file>
             <file>file:/C:/Users/USER/Documents/Doc/java/tubes-oop/src/ui/FormLoginRegister.java</file>
         </group>
     </open-files>

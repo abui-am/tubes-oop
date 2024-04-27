@@ -10,16 +10,14 @@ package core.models.requests;
  */
 public class UserRequest {
 
-    public UserRequest(String name, String nip, String email, int roleId, String password) {
+    public UserRequest(String name, String email, int roleId, String password) {
         this.name = name;
-        this.nip = nip;
         this.email = email;
         this.roleId = roleId;
         this.password = password;
     }
 
     private String name;
-    private String nip;
     private String email;
     private int roleId;
     private String password;
@@ -30,14 +28,6 @@ public class UserRequest {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getNip() {
-        return nip;
-    }
-
-    public void setNip(String nip) {
-        this.nip = nip;
     }
 
     public String getEmail() {

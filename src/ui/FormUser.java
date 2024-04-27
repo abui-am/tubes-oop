@@ -4,6 +4,23 @@
  */
 package ui;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import core.models.requests.UserRequest;
+import core.models.responses.AuthResponse;
+import core.models.responses.BaseResponse;
+import core.models.responses.UserListResponse;
+import helpers.HttpHelper;
+import helpers.JdbcHelper;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import ui.action.TableActionCellRender;
 
@@ -18,13 +35,38 @@ public class FormUser extends javax.swing.JFrame {
      */
     public FormUser() {
         initComponents();
-        tableUser.getColumnModel().getColumn(4).setCellRenderer(new TableActionCellRender());
-        
-        String data[] = {"001","Abui","NIP","Email"};
-        
+        getUsers();
+    }
+    
+    private void getUsers() {
+        tableUser.getColumnModel().getColumn(3).setCellRenderer(new TableActionCellRender());
         DefaultTableModel model = (DefaultTableModel) tableUser.getModel();
-        model.addRow(data);
+        model.setRowCount(0);
         
+        try {
+            String token = JdbcHelper.getToken();
+            String response = HttpHelper.get("users", token);
+            
+            ObjectMapper mapper = new ObjectMapper()
+                    .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
+                    .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+            BaseResponse<List<UserListResponse>> br = mapper.readValue(response, new TypeReference<BaseResponse<List<UserListResponse>>>() {
+            });
+            
+            List<UserListResponse> users = br.getData();
+            
+            for (UserListResponse user : users) {
+                String data[] = {user.getNip(), user.getName(), user.getRoleName()};
+                model.addRow(data);
+            }
+            
+        } catch (SQLException ex) {
+            Logger.getLogger(FormUser.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(FormUser.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(FormUser.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
@@ -38,13 +80,17 @@ public class FormUser extends javax.swing.JFrame {
 
         jScrollPane1 = new javax.swing.JScrollPane();
         tableUser = new javax.swing.JTable();
-        jTextField1 = new javax.swing.JTextField();
+        fieldName = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
-        jTextField2 = new javax.swing.JTextField();
+        fieldNip = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
-        jTextField3 = new javax.swing.JTextField();
+        fieldEmailInput = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
+        btnAddUser = new javax.swing.JButton();
+        jLabel4 = new javax.swing.JLabel();
+        fieldPasswordInput = new javax.swing.JPasswordField();
+        jLabel5 = new javax.swing.JLabel();
+        cbRole = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -53,55 +99,70 @@ public class FormUser extends javax.swing.JFrame {
 
             },
             new String [] {
-                "ID", "Nama", "NIP", "Email", "Aksi"
+                "NIP", "Nama", "Role", "Aksi"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Object.class
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Object.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
                 return types [columnIndex];
             }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
         });
         tableUser.setRowHeight(50);
         jScrollPane1.setViewportView(tableUser);
         if (tableUser.getColumnModel().getColumnCount() > 0) {
-            tableUser.getColumnModel().getColumn(4).setResizable(false);
-            tableUser.getColumnModel().getColumn(4).setPreferredWidth(170);
+            tableUser.getColumnModel().getColumn(3).setResizable(false);
+            tableUser.getColumnModel().getColumn(3).setPreferredWidth(170);
         }
 
-        jTextField1.setText("Masukan Nama");
-        jTextField1.addActionListener(new java.awt.event.ActionListener() {
+        fieldName.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField1ActionPerformed(evt);
+                fieldNameActionPerformed(evt);
             }
         });
 
         jLabel1.setText("Nama");
 
-        jTextField2.setText("Masukan NIP");
-        jTextField2.addActionListener(new java.awt.event.ActionListener() {
+        fieldNip.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField2ActionPerformed(evt);
+                fieldNipActionPerformed(evt);
             }
         });
 
         jLabel2.setText("NIP");
 
-        jTextField3.setText("Masukan Email");
-        jTextField3.addActionListener(new java.awt.event.ActionListener() {
+        fieldEmailInput.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField3ActionPerformed(evt);
+                fieldEmailInputActionPerformed(evt);
             }
         });
 
         jLabel3.setText("Email");
 
-        jButton1.setText("TAMBAH USER");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        btnAddUser.setText("TAMBAH USER");
+        btnAddUser.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                btnAddUserActionPerformed(evt);
+            }
+        });
+
+        jLabel4.setText("Password");
+
+        jLabel5.setText("Role");
+
+        cbRole.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Operator", "Manager" }));
+        cbRole.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbRoleActionPerformed(evt);
             }
         });
 
@@ -109,61 +170,118 @@ public class FormUser extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 532, Short.MAX_VALUE)
-                .addGap(18, 18, 18)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 663, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jTextField1)
-                    .addComponent(jLabel1)
-                    .addComponent(jTextField2)
-                    .addComponent(jLabel2)
-                    .addComponent(jTextField3)
-                    .addComponent(jLabel3)
-                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 327, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(btnAddUser, javax.swing.GroupLayout.DEFAULT_SIZE, 256, Short.MAX_VALUE)
+                    .addComponent(fieldEmailInput, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(jLabel3)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(fieldNip, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 256, Short.MAX_VALUE)
+                            .addComponent(jLabel1)
+                            .addComponent(fieldName, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel2))
+                        .addComponent(jLabel4)
+                        .addComponent(jLabel5))
+                    .addComponent(fieldPasswordInput)
+                    .addComponent(cbRole, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(19, 19, 19))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 375, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 25, Short.MAX_VALUE))
-            .addGroup(layout.createSequentialGroup()
                 .addGap(25, 25, 25)
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(fieldName, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(fieldNip, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jLabel3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(fieldEmailInput, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jLabel4)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(fieldPasswordInput, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel5)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(cbRole, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(btnAddUser, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jScrollPane1)
+                .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
+    private void fieldNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fieldNameActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField1ActionPerformed
+    }//GEN-LAST:event_fieldNameActionPerformed
 
-    private void jTextField2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField2ActionPerformed
+    private void fieldNipActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fieldNipActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField2ActionPerformed
+    }//GEN-LAST:event_fieldNipActionPerformed
 
-    private void jTextField3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField3ActionPerformed
+    private void fieldEmailInputActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fieldEmailInputActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField3ActionPerformed
+    }//GEN-LAST:event_fieldEmailInputActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void btnAddUserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddUserActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jButton1ActionPerformed
+        String buttonLabel = btnAddUser.getLabel();
+        btnAddUser.setEnabled(false);
+        btnAddUser.setLabel("Loading...");
+        
+        ObjectMapper mapper = new ObjectMapper()
+                .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
+                .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+        
+        // 1 -> Operator
+        // 3 -> manager
+        int roleId = cbRole.getSelectedIndex() == 0 ? 1 : 3;
+        
+        UserRequest request
+                = new UserRequest(
+                        fieldName.getText(),
+                        fieldNip.getText(),
+                        fieldEmailInput.getText(),
+                        roleId,
+                        fieldPasswordInput.getText());
+        
+        try {
+            String body = mapper.writeValueAsString(request);
+            String response = HttpHelper.post("users", body, JdbcHelper.getToken());
+            BaseResponse br = mapper.readValue(response, BaseResponse.class);
+            
+            if (br.getCode().equals("0000")) {
+                JOptionPane.showMessageDialog(null, br.getMessage());
+                getUsers();
+            } else {
+                JOptionPane.showMessageDialog(null, br.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (IOException | InterruptedException ex) {
+            Logger.getLogger(FormLoginRegister.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(FormUser.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            btnAddUser.setEnabled(true);
+            btnAddUser.setLabel(buttonLabel);
+        }
+    }//GEN-LAST:event_btnAddUserActionPerformed
+
+    private void cbRoleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbRoleActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cbRoleActionPerformed
 
     /**
      * @param args the command line arguments
@@ -201,14 +319,18 @@ public class FormUser extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
+    private javax.swing.JButton btnAddUser;
+    private javax.swing.JComboBox<String> cbRole;
+    private javax.swing.JTextField fieldEmailInput;
+    private javax.swing.JTextField fieldName;
+    private javax.swing.JTextField fieldNip;
+    private javax.swing.JPasswordField fieldPasswordInput;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
     private javax.swing.JTable tableUser;
     // End of variables declaration//GEN-END:variables
 }

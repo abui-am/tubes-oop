@@ -4,6 +4,8 @@
  */
 package ui.action;
 
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author Abui
@@ -30,8 +32,18 @@ public class PanelAction extends javax.swing.JPanel {
         bDelete = new javax.swing.JButton();
 
         bEdit.setText("Edit");
+        bEdit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bEditActionPerformed(evt);
+            }
+        });
 
         bDelete.setText("Delete");
+        bDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bDeleteActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -55,10 +67,19 @@ public class PanelAction extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void bEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bEditActionPerformed
+        // TODO add your handling code here:
+        
+    }//GEN-LAST:event_bEditActionPerformed
+
+    private void bDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bDeleteActionPerformed
+        // TODO add your handling code here:
+         JOptionPane.showMessageDialog(null, "delete");
+    }//GEN-LAST:event_bDeleteActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bDelete;
     private javax.swing.JButton bEdit;
-    private javax.swing.JButton jButton2;
     // End of variables declaration//GEN-END:variables
 }

@@ -138,6 +138,7 @@ public class FormLoginRegister extends javax.swing.JFrame {
             BaseResponse<AuthResponse> br = mapper.readValue(response, new TypeReference<BaseResponse<AuthResponse>>(){});
             
             int affected = JdbcHelper.insertToken(1, br.getData().getToken());
+            
             if (br.getCode().equals("0000") && affected > 0) {
                 JOptionPane.showMessageDialog(null, br.getMessage());
                 MainMenu mm = new MainMenu();

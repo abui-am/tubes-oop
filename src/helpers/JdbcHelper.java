@@ -38,12 +38,12 @@ public class JdbcHelper {
     public static String getToken() throws SQLException {
         Connection connection = getConnection();
         Statement statement = connection.createStatement();
-        ResultSet result = statement.executeQuery("SELECT * FROM `users`");
+        ResultSet result = statement.executeQuery("SELECT * FROM `logged_in`");
         
         String token = "";
         
         while (result.next()) {
-            token = result.getString("password");
+            token = result.getString("token");
         }
         
         connection.close();
@@ -54,7 +54,12 @@ public class JdbcHelper {
     public static int insertToken(int userId, String token) {
         Connection connection = getConnection();
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO logged_in (user_id, token) VALUES (?, ?)");
+            PreparedStatement preparedStatement = 
+                    connection.prepareStatement(
+                            "INSERT INTO logged_in (user_id, token)\n" +
+                            "VALUES (?, ?)\n" +
+                            "ON DUPLICATE KEY UPDATE token = VALUES(token);");
+            
             preparedStatement.setInt(1, userId);
             preparedStatement.setString(2, token);
             

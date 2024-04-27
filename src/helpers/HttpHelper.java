@@ -23,12 +23,31 @@ public class HttpHelper {
                 .build();
         return sendRequest(request);
     }
+    
+     public static String get(String url, String token) throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .GET()
+                .setHeader("Authorization", "Bearer " + token)
+                .uri(URI.create(baseUrl + url))
+                .build();
+        return sendRequest(request);
+    }
 
     public static String post(String url, String jsonBody) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .POST(HttpRequest.BodyPublishers.ofString(jsonBody, StandardCharsets.UTF_8))
                 .uri(URI.create(baseUrl + url))
                 .setHeader("Content-Type", "application/json")
+                .build();
+        return sendRequest(request);
+    }
+    
+    public static String post(String url, String jsonBody, String token) throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .POST(HttpRequest.BodyPublishers.ofString(jsonBody, StandardCharsets.UTF_8))
+                .uri(URI.create(baseUrl + url))
+                .setHeader("Content-Type", "application/json")
+                .setHeader("Authorization", "Bearer " + token)
                 .build();
         return sendRequest(request);
     }

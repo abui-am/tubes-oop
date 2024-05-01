@@ -29,6 +29,7 @@ public class MainMenu extends javax.swing.JFrame {
     private void initComponents() {
 
         bUser = new javax.swing.JButton();
+        bProduct = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -39,20 +40,31 @@ public class MainMenu extends javax.swing.JFrame {
             }
         });
 
+        bProduct.setText("Product");
+        bProduct.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bProductActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(60, 60, 60)
-                .addComponent(bUser, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(439, Short.MAX_VALUE))
+                .addComponent(bUser, javax.swing.GroupLayout.PREFERRED_SIZE, 219, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 82, Short.MAX_VALUE)
+                .addComponent(bProduct, javax.swing.GroupLayout.PREFERRED_SIZE, 219, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(51, 51, 51))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(45, 45, 45)
-                .addComponent(bUser, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(bUser, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(bProduct, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(285, Short.MAX_VALUE))
         );
 
@@ -68,6 +80,14 @@ public class MainMenu extends javax.swing.JFrame {
         formUser.setVisible(true);
         
     }//GEN-LAST:event_bUserActionPerformed
+
+    private void bProductActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bProductActionPerformed
+        // TODO add your handling code here:
+        FormProduct formProduct = new FormProduct();
+        
+        formProduct.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        formProduct.setVisible(true);
+    }//GEN-LAST:event_bProductActionPerformed
 
     /**
      * @param args the command line arguments
@@ -105,6 +125,7 @@ public class MainMenu extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton bProduct;
     private javax.swing.JButton bUser;
     // End of variables declaration//GEN-END:variables
 }

@@ -22,7 +22,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+import ui.action.TableActionCellEditor;
 import ui.action.TableActionCellRender;
+import ui.action.TableActionEvent;
 
 /**
  *
@@ -39,7 +41,21 @@ public class FormUser extends javax.swing.JFrame {
     }
     
     private void getUsers() {
+        
+        TableActionEvent event = new TableActionEvent() {
+            @Override
+            public void onEdit(int row) {
+                System.out.println("Edit");
+            }
+
+            @Override
+            public void onDelete(int row) {
+                System.out.println("Delete");
+            }
+        };
         tableUser.getColumnModel().getColumn(3).setCellRenderer(new TableActionCellRender());
+        tableUser.getColumnModel().getColumn(3).setCellEditor(new TableActionCellEditor(event));
+
         DefaultTableModel model = (DefaultTableModel) tableUser.getModel();
         model.setRowCount(0);
         
@@ -104,7 +120,7 @@ public class FormUser extends javax.swing.JFrame {
                 java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Object.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false, false
+                false, false, true, true
             };
 
             public Class getColumnClass(int columnIndex) {

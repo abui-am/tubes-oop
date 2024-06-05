@@ -1,15 +1,13 @@
 package ui;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import core.models.requests.UserRequest;
 import core.models.responses.BaseResponse;
 import core.models.responses.UserListResponse;
 import helpers.HttpHelper;
 import helpers.JdbcHelper;
+import helpers.MapperHelper;
 import helpers.MessageHelper;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -65,9 +63,7 @@ public class FormUser extends javax.swing.JFrame {
                     try {
                         String token = JdbcHelper.getToken();
                         String response = HttpHelper.delete("users/" + id, token);
-                        ObjectMapper mapper = new ObjectMapper()
-                            .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
-                            .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+                        ObjectMapper mapper = MapperHelper.getMapper();
                         
                         BaseResponse br = mapper.readValue(response, new TypeReference<BaseResponse>(){});
                         
@@ -100,11 +96,8 @@ public class FormUser extends javax.swing.JFrame {
             String token = JdbcHelper.getToken();
             String response = HttpHelper.get("users", token);
             
-            ObjectMapper mapper = new ObjectMapper()
-                    .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
-                    .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-            BaseResponse<List<UserListResponse>> br = mapper.readValue(response, new TypeReference<BaseResponse<List<UserListResponse>>>() {
-            });
+            ObjectMapper mapper = MapperHelper.getMapper();
+            BaseResponse<List<UserListResponse>> br = mapper.readValue(response, new TypeReference<BaseResponse<List<UserListResponse>>>() {});
             
             List<UserListResponse> users = br.getData();
             this.usr = users;
@@ -171,19 +164,7 @@ public class FormUser extends javax.swing.JFrame {
             tableUser.getColumnModel().getColumn(3).setPreferredWidth(170);
         }
 
-        fieldName.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                fieldNameActionPerformed(evt);
-            }
-        });
-
         jLabel1.setText("Nama");
-
-        fieldEmailInput.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                fieldEmailInputActionPerformed(evt);
-            }
-        });
 
         jLabel3.setText("Email");
 
@@ -251,23 +232,13 @@ public class FormUser extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void fieldNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fieldNameActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_fieldNameActionPerformed
-
-    private void fieldEmailInputActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fieldEmailInputActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_fieldEmailInputActionPerformed
-
     private void btnAddUserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddUserActionPerformed
         // TODO add your handling code here:
         String buttonLabel = btnAddUser.getLabel();
         btnAddUser.setEnabled(false);
         btnAddUser.setLabel("Loading...");
         
-        ObjectMapper mapper = new ObjectMapper()
-                .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
-                .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+        ObjectMapper mapper = MapperHelper.getMapper();
         
         // 1 -> Operator
         // 3 -> manager
@@ -286,10 +257,10 @@ public class FormUser extends javax.swing.JFrame {
             BaseResponse br = mapper.readValue(response, BaseResponse.class);
             
             if (br.getCode().equals("0000")) {
-                JOptionPane.showMessageDialog(null, br.getMessage());
+                MessageHelper.Success("Success", br.getMessage());
                 getUsers();
             } else {
-                JOptionPane.showMessageDialog(null, br.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                MessageHelper.Error("Error", br.getMessage());
             }
         } catch (IOException | InterruptedException ex) {
             Logger.getLogger(FormLoginRegister.class.getName()).log(Level.SEVERE, null, ex);

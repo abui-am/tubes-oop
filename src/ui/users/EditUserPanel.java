@@ -1,15 +1,13 @@
 package ui.users;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import core.models.requests.UserUpdateRequest;
 import core.models.responses.BaseResponse;
 import core.models.responses.UserListResponse;
 import helpers.HttpHelper;
 import helpers.JdbcHelper;
+import helpers.MapperHelper;
 import helpers.MessageHelper;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -134,9 +132,7 @@ public class EditUserPanel extends javax.swing.JPanel {
             request = new UserUpdateRequest(this.id, name, email, roleId, password);
         }
         
-        ObjectMapper mapper = new ObjectMapper()
-                .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
-                .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+        ObjectMapper mapper = MapperHelper.getMapper();
         
          try {
             String body = mapper.writeValueAsString(request);
@@ -147,6 +143,7 @@ public class EditUserPanel extends javax.swing.JPanel {
             if (br.isSuccess()) {
                 MessageHelper.Success("Success", br.getMessage());
                 dialog.setVisible(false);
+                
                 tableUser.getColumnModel().getColumn(3).setCellRenderer(new TableActionCellRender());
                 tableUser.getColumnModel().getColumn(3).setCellEditor(new TableActionCellEditor(event));
 
@@ -156,8 +153,7 @@ public class EditUserPanel extends javax.swing.JPanel {
                 try {
                     response = HttpHelper.get("users", token);
 
-                    BaseResponse<List<UserListResponse>> br1 = mapper.readValue(response, new TypeReference<BaseResponse<List<UserListResponse>>>() {
-                    });
+                    BaseResponse<List<UserListResponse>> br1 = mapper.readValue(response, new TypeReference<BaseResponse<List<UserListResponse>>>() {});
 
                     List<UserListResponse> users = br1.getData();
 

@@ -161,9 +161,6 @@
       </SubComponents>
     </Container>
     <Component class="javax.swing.JTextField" name="tfNIK">
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="tfNIKActionPerformed"/>
-      </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel1">
       <Properties>
@@ -171,9 +168,6 @@
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="tfName">
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="tfNameActionPerformed"/>
-      </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel3">
       <Properties>
@@ -181,9 +175,6 @@
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="tfBirthplace">
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="tfBirthplaceActionPerformed"/>
-      </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel4">
       <Properties>
@@ -191,9 +182,6 @@
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="tfGender">
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="tfGenderActionPerformed"/>
-      </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel5">
       <Properties>
@@ -206,9 +194,6 @@
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="tfAddress">
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="tfAddressActionPerformed"/>
-      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="btnAddMember">
       <Properties>

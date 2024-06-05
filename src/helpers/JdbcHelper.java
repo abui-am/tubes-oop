@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package helpers;
 
 import java.sql.Statement;
@@ -13,10 +9,6 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- *
- * @author USER
- */
 public class JdbcHelper {
     static final String DB_URL = "jdbc:mysql://localhost/kasir_client";
     static final String DB_USER = "root";

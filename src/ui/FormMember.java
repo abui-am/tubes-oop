@@ -96,7 +96,6 @@ public class FormMember extends javax.swing.JFrame {
         btnAddMember = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setPreferredSize(new java.awt.Dimension(1120, 400));
 
         tableUser.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -110,7 +109,7 @@ public class FormMember extends javax.swing.JFrame {
                 java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Object.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, true, false, true, true
+                false, false, false, false, false, false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {

@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
 package ui;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -10,47 +6,88 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import core.models.requests.UserRequest;
-import core.models.responses.AuthResponse;
 import core.models.responses.BaseResponse;
 import core.models.responses.UserListResponse;
 import helpers.HttpHelper;
 import helpers.JdbcHelper;
+import helpers.MessageHelper;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import ui.action.TableActionCellEditor;
 import ui.action.TableActionCellRender;
 import ui.action.TableActionEvent;
+import ui.users.EditUserPanel;
 
-/**
- *
- * @author Abui
- */
 public class FormUser extends javax.swing.JFrame {
-
-    /**
-     * Creates new form FormUser
-     */
+    
+    private List<UserListResponse> usr;
+    
     public FormUser() {
         initComponents();
         getUsers();
     }
     
-    private void getUsers() {
+    public void getUsers() {
         
         TableActionEvent event = new TableActionEvent() {
             @Override
             public void onEdit(int row) {
-                System.out.println("Edit");
+                int id = usr.get(row).getId();
+                String name = usr.get(row).getName();
+                String email = usr.get(row).getEmail();
+                int roleId =  usr.get(row).getRoleId() == 1 ? 0 : 1;
+                
+                JDialog dialog = new JDialog();
+                
+                EditUserPanel panel = new EditUserPanel(id, dialog);
+                panel.textFieldName.setText(name);
+                panel.textFieldEmail.setText(email);
+                panel.jComboBox1.setSelectedIndex(roleId);
+                
+                dialog.add(panel);
+                dialog.setSize(300, 300);
+                dialog.setVisible(true);
             }
 
             @Override
             public void onDelete(int row) {
-                System.out.println("Delete");
+                int answer = MessageHelper.Confirm("Confirm", "Apakah yakin ingin menghapus data tersebut?");
+                
+                if (answer == JOptionPane.YES_OPTION) {
+                    int id = usr.get(row).getId();
+                    
+                    try {
+                        String token = JdbcHelper.getToken();
+                        String response = HttpHelper.delete("users/" + id, token);
+                        ObjectMapper mapper = new ObjectMapper()
+                            .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
+                            .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+                        
+                        BaseResponse br = mapper.readValue(response, new TypeReference<BaseResponse>(){});
+                        
+                        if (br.isSuccess()) {
+                            MessageHelper.Success("Success", "Data deleted");
+                            getUsers();
+                        } else {
+                            MessageHelper.Error("Error", br.getMessage());
+                        }
+                        
+                        getUsers();
+                    } catch (SQLException ex) {
+                         Logger.getLogger(FormUser.class.getName()).log(Level.SEVERE, null, ex);
+                    }catch (IOException ex) {
+                        Logger.getLogger(FormUser.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(FormUser.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
             }
         };
         tableUser.getColumnModel().getColumn(3).setCellRenderer(new TableActionCellRender());
@@ -70,6 +107,7 @@ public class FormUser extends javax.swing.JFrame {
             });
             
             List<UserListResponse> users = br.getData();
+            this.usr = users;
             
             for (UserListResponse user : users) {
                 String data[] = {user.getNip(), user.getName(), user.getRoleName()};

@@ -3,9 +3,6 @@
 <Form version="1.5" maxVersion="1.9" type="org.netbeans.modules.form.forminfo.JFrameFormInfo">
   <Properties>
     <Property name="defaultCloseOperation" type="int" value="3"/>
-    <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-      <Dimension value="[1120, 400]"/>
-    </Property>
   </Properties>
   <SyntheticProperties>
     <SyntheticProperty name="formSizePolicy" type="int" value="1"/>
@@ -100,10 +97,10 @@
                 <Column editable="false" title="Poin" type="java.lang.Integer"/>
                 <Column editable="false" title="NIK" type="java.lang.String"/>
                 <Column editable="false" title="Nama" type="java.lang.String"/>
-                <Column editable="true" title="Tempat Lahir" type="java.lang.String"/>
+                <Column editable="false" title="Tempat Lahir" type="java.lang.String"/>
                 <Column editable="false" title="Gender" type="java.lang.String"/>
-                <Column editable="true" title="Alamat" type="java.lang.String"/>
-                <Column editable="true" title="Aksi" type="java.lang.Object"/>
+                <Column editable="false" title="Alamat" type="java.lang.String"/>
+                <Column editable="false" title="Aksi" type="java.lang.Object"/>
               </Table>
             </Property>
             <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">

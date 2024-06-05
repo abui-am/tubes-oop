@@ -4,10 +4,14 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/C:/Users/USER/Downloads/Tel-U/Pemrograman%20Berorientasi%20Objek/Tubes/tubes-oop/src/ui/MainMenu.java</file>
+            <file>file:/C:/Users/USER/Downloads/Tel-U/Pemrograman%20Berorientasi%20Objek/Tubes/tubes-oop/src/helpers/MessageHelper.java</file>
             <file>file:/C:/Users/USER/Downloads/Tel-U/Pemrograman%20Berorientasi%20Objek/Tubes/tubes-oop/src/tubes/Tubes.java</file>
             <file>file:/C:/Users/USER/Downloads/Tel-U/Pemrograman%20Berorientasi%20Objek/Tubes/tubes-oop/src/ui/FormUser.java</file>
             <file>file:/C:/Users/USER/Downloads/Tel-U/Pemrograman%20Berorientasi%20Objek/Tubes/tubes-oop/src/ui/FormLoginRegister.java</file>
             <file>file:/C:/Users/USER/Downloads/Tel-U/Pemrograman%20Berorientasi%20Objek/Tubes/tubes-oop/src/helpers/JdbcHelper.java</file>
+            <file>file:/C:/Users/USER/Downloads/Tel-U/Pemrograman%20Berorientasi%20Objek/Tubes/tubes-oop/src/ui/users/EditUserPanel.java</file>
+            <file>file:/C:/Users/USER/Downloads/Tel-U/Pemrograman%20Berorientasi%20Objek/Tubes/tubes-oop/src/core/models/requests/UserUpdateRequest.java</file>
+            <file>file:/C:/Users/USER/Downloads/Tel-U/Pemrograman%20Berorientasi%20Objek/Tubes/tubes-oop/src/helpers/HttpHelper.java</file>
         </group>
     </open-files>
 </project-private>

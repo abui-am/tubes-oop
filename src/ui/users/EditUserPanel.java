@@ -2,30 +2,42 @@ package ui.users;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import core.models.requests.UserUpdateRequest;
 import core.models.responses.BaseResponse;
+import core.models.responses.UserListResponse;
 import helpers.HttpHelper;
 import helpers.JdbcHelper;
 import helpers.MessageHelper;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JDialog;
-import javax.swing.JOptionPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
 import ui.FormLoginRegister;
 import ui.FormUser;
+import ui.action.TableActionCellEditor;
+import ui.action.TableActionCellRender;
+import ui.action.TableActionEvent;
 
 public class EditUserPanel extends javax.swing.JPanel {
     private int id;
     private JDialog dialog;
+    private JTable tableUser;
+    private TableActionEvent event;
     
-    public EditUserPanel(int id, JDialog dialog) {
+    public EditUserPanel(int id, JDialog dialog, JTable tableUser, TableActionEvent event) {
         initComponents();
+        
         this.id = id;
         this.dialog = dialog;
+        this.tableUser = tableUser;
+        this.event = event;
     }
 
     @SuppressWarnings("unchecked")
@@ -135,7 +147,30 @@ public class EditUserPanel extends javax.swing.JPanel {
             if (br.isSuccess()) {
                 MessageHelper.Success("Success", br.getMessage());
                 dialog.setVisible(false);
-                new FormUser().getUsers();
+                tableUser.getColumnModel().getColumn(3).setCellRenderer(new TableActionCellRender());
+                tableUser.getColumnModel().getColumn(3).setCellEditor(new TableActionCellEditor(event));
+
+                DefaultTableModel model = (DefaultTableModel) tableUser.getModel();
+                model.setRowCount(0);
+
+                try {
+                    response = HttpHelper.get("users", token);
+
+                    BaseResponse<List<UserListResponse>> br1 = mapper.readValue(response, new TypeReference<BaseResponse<List<UserListResponse>>>() {
+                    });
+
+                    List<UserListResponse> users = br1.getData();
+
+                    for (UserListResponse user : users) {
+                        String data[] = {user.getNip(), user.getName(), user.getRoleName()};
+                        model.addRow(data);
+                    }
+
+                } catch (IOException ex) {
+                    Logger.getLogger(FormUser.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(FormUser.class.getName()).log(Level.SEVERE, null, ex);
+                }
             } else {
                 MessageHelper.Error("Error", br.getMessage());
             }

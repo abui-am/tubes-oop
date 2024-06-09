@@ -1,41 +1,31 @@
 package ui.users;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import core.models.requests.UserUpdateRequest;
 import core.models.responses.BaseResponse;
-import core.models.responses.UserListResponse;
 import helpers.HttpHelper;
 import helpers.JdbcHelper;
 import helpers.MapperHelper;
 import helpers.MessageHelper;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JDialog;
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableModel;
 import ui.FormLoginRegister;
 import ui.FormUser;
-import ui.action.TableActionCellEditor;
-import ui.action.TableActionCellRender;
-import ui.action.TableActionEvent;
 
 public class EditUserPanel extends javax.swing.JPanel {
+    
     private int id;
     private JDialog dialog;
-    private JTable tableUser;
-    private TableActionEvent event;
+    private FormUser formUser;
     
-    public EditUserPanel(int id, JDialog dialog, JTable tableUser, TableActionEvent event) {
+    public EditUserPanel(int id, JDialog dialog, FormUser formUser) {
         initComponents();
-        
         this.id = id;
         this.dialog = dialog;
-        this.tableUser = tableUser;
-        this.event = event;
+        this.formUser = formUser;
     }
 
     @SuppressWarnings("unchecked")
@@ -120,9 +110,7 @@ public class EditUserPanel extends javax.swing.JPanel {
         String name = textFieldName.getText();
         String email = textFieldEmail.getText();
         String password = textFieldPassword.getText();
-        // 1 -> Operator
-        // 3 -> manager
-        int roleId = jComboBox1.getSelectedIndex() == 0 ? 1 : 3;
+        int roleId = jComboBox1.getSelectedIndex() == 0 ? 3 : 1;
         
         UserUpdateRequest request;
         
@@ -144,29 +132,10 @@ public class EditUserPanel extends javax.swing.JPanel {
                 MessageHelper.Success("Success", br.getMessage());
                 dialog.setVisible(false);
                 
-                tableUser.getColumnModel().getColumn(3).setCellRenderer(new TableActionCellRender());
-                tableUser.getColumnModel().getColumn(3).setCellEditor(new TableActionCellEditor(event));
-
-                DefaultTableModel model = (DefaultTableModel) tableUser.getModel();
-                model.setRowCount(0);
-
-                try {
-                    response = HttpHelper.get("users", token);
-
-                    BaseResponse<List<UserListResponse>> br1 = mapper.readValue(response, new TypeReference<BaseResponse<List<UserListResponse>>>() {});
-
-                    List<UserListResponse> users = br1.getData();
-
-                    for (UserListResponse user : users) {
-                        String data[] = {user.getNip(), user.getName(), user.getRoleName()};
-                        model.addRow(data);
-                    }
-
-                } catch (IOException ex) {
-                    Logger.getLogger(FormUser.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(FormUser.class.getName()).log(Level.SEVERE, null, ex);
+                if (formUser != null) {
+                    this.formUser.getUsers();
                 }
+              
             } else {
                 MessageHelper.Error("Error", br.getMessage());
             }
@@ -176,7 +145,6 @@ public class EditUserPanel extends javax.swing.JPanel {
             Logger.getLogger(FormUser.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jButton1ActionPerformed
-
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;

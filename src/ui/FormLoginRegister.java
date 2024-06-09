@@ -38,12 +38,6 @@ public class FormLoginRegister extends javax.swing.JFrame {
 
         jLabel2.setText("Password");
 
-        passwordField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                passwordFieldActionPerformed(evt);
-            }
-        });
-
         btnLogin.setActionCommand("Login");
         btnLogin.setBackground(new java.awt.Color(102, 153, 255));
         btnLogin.setFont(new java.awt.Font("Montserrat Medium", 1, 12)); // NOI18N
@@ -96,10 +90,6 @@ public class FormLoginRegister extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void passwordFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_passwordFieldActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_passwordFieldActionPerformed
-
     private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
         String buttonLabel = btnLogin.getLabel();
         btnLogin.setEnabled(false);
@@ -112,8 +102,8 @@ public class FormLoginRegister extends javax.swing.JFrame {
             String body = mapper.writeValueAsString(request);
             String response = HttpHelper.post("users/auth", body);
             BaseResponse<AuthResponse> br = mapper.readValue(response, new TypeReference<BaseResponse<AuthResponse>>(){});
-            
-            int affected = JdbcHelper.insertToken(1, br.getData().getToken());
+            AuthResponse data = br.getData();
+            int affected = JdbcHelper.insertToken(1, data.getToken(), data.getName(), data.getRoleId());
             
             if (br.getCode().equals("0000") && affected > 0) {
                 MessageHelper.Success("Success", br.getMessage());

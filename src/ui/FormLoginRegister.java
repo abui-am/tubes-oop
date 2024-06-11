@@ -9,6 +9,7 @@ import helpers.HttpHelper;
 import helpers.JdbcHelper;
 import helpers.MapperHelper;
 import helpers.MessageHelper;
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -37,6 +38,12 @@ public class FormLoginRegister extends javax.swing.JFrame {
         emailField.setToolTipText("Masukan Username");
 
         jLabel2.setText("Password");
+
+        passwordField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                passwordFieldKeyPressed(evt);
+            }
+        });
 
         btnLogin.setActionCommand("Login");
         btnLogin.setBackground(new java.awt.Color(102, 153, 255));
@@ -121,6 +128,12 @@ public class FormLoginRegister extends javax.swing.JFrame {
         }
         
     }//GEN-LAST:event_btnLoginActionPerformed
+
+    private void passwordFieldKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_passwordFieldKeyPressed
+         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+             this.btnLoginActionPerformed(null);
+         }
+    }//GEN-LAST:event_passwordFieldKeyPressed
 
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {

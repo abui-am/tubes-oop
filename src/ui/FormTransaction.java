@@ -1,26 +1,26 @@
  package ui;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import core.models.requests.ProductRequest;
+import core.models.requests.MemberNumberRequest;
+import core.models.requests.TransactionDetailRequest;
+import core.models.requests.TransactionRequest;
 import core.models.responses.BaseResponse;
+import core.models.responses.MemberNumberResponse;
 import core.models.responses.ProductListResponse;
 import helpers.HttpHelper;
 import helpers.JdbcHelper;
-import java.awt.BorderLayout;
+import helpers.MapperHelper;
+import helpers.MessageHelper;
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
 import javax.swing.table.DefaultTableModel;
-import ui.action.TableActionCellRender;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -33,7 +33,9 @@ import ui.action.TableActionCellRender;
  */
 public class FormTransaction extends javax.swing.JFrame {
     
-    List<ProductRequest> products = new ArrayList<ProductRequest>();
+    List<ProductListResponse> products = new ArrayList<ProductListResponse>();
+    TransactionRequest transactionRequest = new TransactionRequest();
+    DefaultTableModel model;
 
     /**
      * Creates new form FormTransaction
@@ -41,6 +43,8 @@ public class FormTransaction extends javax.swing.JFrame {
     public FormTransaction() {
         initComponents();
         getProducts();
+        this.model = (DefaultTableModel) tTransaction.getModel();
+        model.setRowCount(0);
     }
     
     
@@ -49,13 +53,11 @@ public class FormTransaction extends javax.swing.JFrame {
             String token = JdbcHelper.getToken();
             String response = HttpHelper.get("products", token);
             
-            ObjectMapper mapper = new ObjectMapper()
-                    .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
-                    .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-            BaseResponse<List<ProductListResponse>> br = mapper.readValue(response, new TypeReference<BaseResponse<List<ProductListResponse>>>() {
-            });
+            ObjectMapper mapper = MapperHelper.getMapper();
+            BaseResponse<List<ProductListResponse>> br = mapper.readValue(response, new TypeReference<BaseResponse<List<ProductListResponse>>>() {});
             
             List<ProductListResponse> products = br.getData();
+            this.products = products;
             
             for (ProductListResponse product : products) {
                 cbProduct.addItem(new Item(product.getId(), product.getName()));
@@ -88,9 +90,12 @@ public class FormTransaction extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         tTransaction = new javax.swing.JTable();
         Transaksi1 = new javax.swing.JLabel();
-        Transaksi2 = new javax.swing.JLabel();
+        totalHarga = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
         bTambah1 = new javax.swing.JButton();
+        memberNoTf = new javax.swing.JTextField();
+        memberNameLabel = new javax.swing.JLabel();
+        jButton2 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -106,21 +111,33 @@ public class FormTransaction extends javax.swing.JFrame {
 
         tTransaction.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
             },
             new String [] {
-                "ID", "Item Name", "Quantity"
+                "ID", "Item Name", "Price", "Quantity"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.Integer.class
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, true
             };
 
             public Class getColumnClass(int columnIndex) {
                 return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        tTransaction.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                tTransactionKeyPressed(evt);
             }
         });
         jScrollPane1.setViewportView(tTransaction);
@@ -128,15 +145,35 @@ public class FormTransaction extends javax.swing.JFrame {
         Transaksi1.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         Transaksi1.setText("Total");
 
-        Transaksi2.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
-        Transaksi2.setText("Rp0");
+        totalHarga.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        totalHarga.setText("Rp0");
 
         jButton1.setText("Buat Transaksi");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         bTambah1.setText("Hapus list yang dipilih");
         bTambah1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 bTambah1ActionPerformed(evt);
+            }
+        });
+
+        memberNoTf.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                memberNoTfKeyPressed(evt);
+            }
+        });
+
+        memberNameLabel.setText("-");
+
+        jButton2.setText("Kembali");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
             }
         });
 
@@ -149,43 +186,59 @@ public class FormTransaction extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 635, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(cbProduct, javax.swing.GroupLayout.PREFERRED_SIZE, 323, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addComponent(bTambah))
-                            .addComponent(Transaksi))
-                        .addGap(0, 0, Short.MAX_VALUE))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(totalHarga)
+                                    .addComponent(Transaksi1))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addComponent(memberNameLabel)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(bTambah1)))
+                        .addContainerGap())
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(Transaksi2)
-                            .addComponent(Transaksi1))
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 635, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 6, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(cbProduct, javax.swing.GroupLayout.PREFERRED_SIZE, 323, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(bTambah)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(memberNoTf))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(Transaksi)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(bTambah1)))
-                .addContainerGap())
+                        .addComponent(jButton2)
+                        .addGap(24, 24, 24))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(Transaksi)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(Transaksi)
+                    .addComponent(jButton2))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(cbProduct, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(bTambah))
+                    .addComponent(bTambah)
+                    .addComponent(memberNoTf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 203, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(bTambah1)
-                .addGap(10, 10, 10)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(bTambah1)
+                        .addGap(10, 10, 10))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(memberNameLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(Transaksi1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(Transaksi2))
+                        .addComponent(totalHarga))
                     .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -194,12 +247,125 @@ public class FormTransaction extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void bTambahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bTambahActionPerformed
-        // TODO add your handling code here:
+        int rows = tTransaction.getRowCount();
+        ProductListResponse item = this.products.get(cbProduct.getSelectedIndex());        
+        String data[] = {String.valueOf(item.getId()), item.getName(), String.valueOf(item.getPrice()), "1"};
+        model.addRow(data);
+        
+        int total = 0;
+        for (int i = 0; i < model.getRowCount(); i++) {
+            int qty = Integer.parseInt(model.getValueAt(i, 3).toString());
+            int price = Integer.parseInt(model.getValueAt(i, 2).toString());
+            
+            total += qty * price;
+        }
+        
+        totalHarga.setText("Rp" + total);
     }//GEN-LAST:event_bTambahActionPerformed
 
     private void bTambah1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bTambah1ActionPerformed
-        // TODO add your handling code here:
+        int index = tTransaction.getSelectedRow();
+        
+        if (index != -1) {
+            model.removeRow(index);
+            int total = 0;
+            for (int i = 0; i < model.getRowCount(); i++) {
+                int qty = Integer.parseInt(model.getValueAt(i, 3).toString());
+                int price = Integer.parseInt(model.getValueAt(i, 2).toString());
+
+                total += qty * price;
+            }
+
+            totalHarga.setText("Rp" + total);
+        }
     }//GEN-LAST:event_bTambah1ActionPerformed
+
+    private void memberNoTfKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_memberNoTfKeyPressed
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+            try {
+                ObjectMapper mapper = MapperHelper.getMapper();
+                MemberNumberRequest request = new MemberNumberRequest(memberNoTf.getText());
+                
+                String token = JdbcHelper.getToken();
+                String body = mapper.writeValueAsString(request);
+                String response = HttpHelper.post("members/validate", body, token);
+                
+                BaseResponse<MemberNumberResponse> br = mapper.readValue(response, new TypeReference<BaseResponse<MemberNumberResponse>>(){});
+                MemberNumberResponse data = br.getData();
+
+                if (br.getCode().equals("0000")) {
+                    MessageHelper.Success("Success", data.getName() + " " + data.getPoint());
+                    memberNameLabel.setText(data.getName());
+                    transactionRequest.setMemberId(data.getId());
+                } else {
+                    MessageHelper.Error("Error", br.getMessage());
+                }
+            } catch (IOException | InterruptedException ex) {
+                Logger.getLogger(FormLoginRegister.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (SQLException ex) {
+                Logger.getLogger(FormTransaction.class.getName()).log(Level.SEVERE, null, ex);
+            } 
+        }
+    }//GEN-LAST:event_memberNoTfKeyPressed
+
+    private void tTransactionKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tTransactionKeyPressed
+         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+            int total = 0;
+            for (int i = 0; i < model.getRowCount(); i++) {
+                int qty = Integer.parseInt(model.getValueAt(i, 3).toString());
+                int price = Integer.parseInt(model.getValueAt(i, 2).toString());
+
+                total += qty * price;
+            }
+
+            totalHarga.setText("Rp" + total);
+         }
+    }//GEN-LAST:event_tTransactionKeyPressed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        int rows = model.getRowCount();
+        
+        for (int i = 0; i < rows; i++) {
+            int id = Integer.parseInt(model.getValueAt(i, 0).toString());
+            int qty = Integer.parseInt(model.getValueAt(i, 3).toString());
+            TransactionDetailRequest request = new TransactionDetailRequest(id, qty);
+            transactionRequest.addDetails(request);
+        }
+                
+        ObjectMapper mapper = MapperHelper.getMapper();
+        String body;
+        try {
+            body = mapper.writeValueAsString(transactionRequest);
+            String response = HttpHelper.post("transactions", body, JdbcHelper.getToken());
+            
+            BaseResponse br = mapper.readValue(response, BaseResponse.class);
+            
+            if (br.isSuccess()) {
+                MessageHelper.Success("Success", "Transaksi sukses!");
+                model.getRowCount();
+                totalHarga.setText("Rp0");
+                transactionRequest = new TransactionRequest();
+            } else {
+                MessageHelper.Error("Error", "Gagal menambahkan transaksi");
+            }
+            
+        } catch (JsonProcessingException ex) {
+            Logger.getLogger(FormTransaction.class.getName()).log(Level.SEVERE, null, ex);
+        }catch (SQLException ex) {
+            Logger.getLogger(FormTransaction.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(FormTransaction.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(FormTransaction.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        MainMenu mm = new MainMenu();
+        mm.setVisible(true);
+        super.setVisible(false);
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -239,13 +405,16 @@ public class FormTransaction extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel Transaksi;
     private javax.swing.JLabel Transaksi1;
-    private javax.swing.JLabel Transaksi2;
     private javax.swing.JButton bTambah;
     private javax.swing.JButton bTambah1;
     private javax.swing.JComboBox<Item> cbProduct;
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel memberNameLabel;
+    private javax.swing.JTextField memberNoTf;
     private javax.swing.JTable tTransaction;
+    private javax.swing.JLabel totalHarga;
     // End of variables declaration//GEN-END:variables
 }
 

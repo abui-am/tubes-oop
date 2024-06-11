@@ -25,13 +25,11 @@ public class ActionButton extends JButton {
     public ActionButton() {
         setContentAreaFilled(false);
         setBorder(new EmptyBorder(3,3,3,3));
-        System.out.println("MOUSE PRESS" + mousePress);
         
         
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                System.out.println("Pressed");
                 mousePress = true;
             }
 
@@ -39,8 +37,6 @@ public class ActionButton extends JButton {
             public void mouseReleased(MouseEvent e) {
                 mousePress = false;
             }
-            
-            
         });
     }
 

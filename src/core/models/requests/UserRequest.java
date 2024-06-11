@@ -16,6 +16,12 @@ public class UserRequest {
         this.roleId = roleId;
         this.password = password;
     }
+    
+    public UserRequest(String name, String email, int roleId) {
+        this.name = name;
+        this.email = email;
+        this.roleId = roleId;
+    }
 
     private String name;
     private String email;

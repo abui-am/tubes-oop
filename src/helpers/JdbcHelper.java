@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package helpers;
 
 import java.sql.Statement;
@@ -13,10 +9,6 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- *
- * @author USER
- */
 public class JdbcHelper {
     static final String DB_URL = "jdbc:mysql://localhost/kasir_client";
     static final String DB_USER = "root";
@@ -38,7 +30,7 @@ public class JdbcHelper {
     public static String getToken() throws SQLException {
         Connection connection = getConnection();
         Statement statement = connection.createStatement();
-        ResultSet result = statement.executeQuery("SELECT * FROM `logged_in`");
+        ResultSet result = statement.executeQuery("SELECT token FROM `logged_in`");
         
         String token = "";
         
@@ -51,17 +43,35 @@ public class JdbcHelper {
         return token;
     }
     
-    public static int insertToken(int userId, String token) {
+    public static int getRoleId() throws SQLException {
+        Connection connection = getConnection();
+        Statement statement = connection.createStatement();
+        ResultSet result = statement.executeQuery("SELECT role_id FROM `logged_in`");
+        
+        int roleId = -1;
+        
+        while (result.next()) {
+            roleId = result.getInt("role_id");
+        }
+        
+        connection.close();
+        
+        return roleId;
+    }
+    
+    public static int insertToken(int userId, String token, String name, int roleId) {
         Connection connection = getConnection();
         try {
             PreparedStatement preparedStatement = 
                     connection.prepareStatement(
-                            "INSERT INTO logged_in (user_id, token)\n" +
-                            "VALUES (?, ?)\n" +
+                            "INSERT INTO logged_in (user_id, token, role_id, name)\n" +
+                            "VALUES (?, ?, ?, ?)\n" +
                             "ON DUPLICATE KEY UPDATE token = VALUES(token);");
             
             preparedStatement.setInt(1, userId);
             preparedStatement.setString(2, token);
+            preparedStatement.setInt(3, roleId);
+            preparedStatement.setString(4, name);
             
             int result = preparedStatement.executeUpdate();
             

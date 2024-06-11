@@ -52,19 +52,21 @@ public class HttpHelper {
         return sendRequest(request);
     }
 
-    public static String put(String url, String jsonBody) throws IOException, InterruptedException {
+    public static String put(String url, String jsonBody, String token) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .PUT(HttpRequest.BodyPublishers.ofString(jsonBody, StandardCharsets.UTF_8))
                 .uri(URI.create(baseUrl + url))
                 .setHeader("Content-Type", "application/json")
+                .setHeader("Authorization", "Bearer " + token)
                 .build();
         return sendRequest(request);
     }
 
-    public static String delete(String url) throws IOException, InterruptedException {
+    public static String delete(String url, String token) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .DELETE()
-               .uri(URI.create(baseUrl + url))
+                .uri(URI.create(baseUrl + url))
+                .setHeader("Authorization", "Bearer " + token)
                 .build();
         return sendRequest(request);
     }
